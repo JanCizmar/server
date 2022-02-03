@@ -6,6 +6,7 @@ package io.tolgee.controllers
 
 import io.tolgee.component.TimestampValidation
 import io.tolgee.configuration.tolgee.TolgeeProperties
+import io.tolgee.constants.FileStoragePath
 import io.tolgee.dtos.request.validators.exceptions.ValidationException
 import io.tolgee.service.FileStorageService
 import io.tolgee.service.ImageUploadService.Companion.UPLOADED_IMAGES_STORAGE_FOLDER_NAME
@@ -24,9 +25,9 @@ import javax.servlet.http.HttpServletResponse
 class ImageStorageController(
   private val tolgeeProperties: TolgeeProperties,
   private val fileStorageService: FileStorageService,
-  private val timestampValidation: TimestampValidation
+  private val timestampValidation: TimestampValidation,
 ) {
-  @GetMapping(value = ["/screenshots/**"])
+  @GetMapping(value = ["/${FileStoragePath.SCREENSHOTS}/**"])
   fun getScreenshot(
     request: HttpServletRequest,
     @RequestParam("timestamp") timestamp: String?,
@@ -41,16 +42,29 @@ class ImageStorageController(
     )
   }
 
-  @GetMapping(value = ["/uploaded-images/**"])
+  @GetMapping(value = ["/${FileStoragePath.UPLOADED_IMAGES}/**"])
   fun getUploadedImage(
     request: HttpServletRequest,
     @RequestParam("timestamp") timestamp: String?,
     response: HttpServletResponse
   ): ByteArray {
     return getFile(
-      urlPathPrefix = "uploaded-images",
+      urlPathPrefix = FileStoragePath.UPLOADED_IMAGES,
       storageFolderName = UPLOADED_IMAGES_STORAGE_FOLDER_NAME,
       timestamp,
+      request,
+      response
+    )
+  }
+
+  @GetMapping(value = ["/${FileStoragePath.AVATARS}/*"])
+  fun getAvatar(
+    request: HttpServletRequest,
+    response: HttpServletResponse
+  ): ByteArray {
+    return getFile(
+      urlPathPrefix = "avatars",
+      storageFolderName = FileStoragePath.AVATARS,
       request,
       response
     )
@@ -70,6 +84,20 @@ class ImageStorageController(
       timestampValidation.checkTimeStamp(timestamp)
     }
 
+    return getFile(
+      response = response,
+      request = request,
+      urlPathPrefix = urlPathPrefix,
+      storageFolderName = storageFolderName
+    )
+  }
+
+  private fun getFile(
+    urlPathPrefix: String,
+    storageFolderName: String,
+    request: HttpServletRequest,
+    response: HttpServletResponse,
+  ): ByteArray {
     response.addHeader("Cache-Control", "max-age=365, must-revalidate, no-transform")
 
     // since there is a "." character in the URL, we have to parse like this

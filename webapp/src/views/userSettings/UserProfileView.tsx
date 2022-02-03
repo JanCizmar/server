@@ -14,7 +14,7 @@ import { MessageService } from 'tg.service/MessageService';
 import { useApiMutation, useApiQuery } from 'tg.service/http/useQueryApi';
 import { UserUpdateDTO } from 'tg.service/request.types';
 import { BaseUserSettingsView } from './BaseUserSettingsView';
-import { Avatar } from './apiKeys/Avatar';
+import { UserProfileAvatar } from './avatar/UserProfileAvatar';
 
 const messagesService = container.resolve(MessageService);
 
@@ -60,7 +60,7 @@ export const UserProfileView: FunctionComponent = () => {
 
     return (
       <>
-        <Avatar userId={userLoadable.data?.id} />
+        <UserProfileAvatar />
         <TextField name="name" label={<T>User settings - Full name</T>} />
         <TextField name="email" label={<T>User settings - E-mail</T>} />
         {userLoadable?.data?.emailAwaitingVerification && (

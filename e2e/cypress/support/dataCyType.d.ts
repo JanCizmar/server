@@ -128,10 +128,8 @@ declare namespace DataCy {
         "project-owner-select" |
         "project-owner-select-item" |
         "project-settings-button" |
-        "project-settings-languages" |
         "project-settings-languages-list-edit-button" |
         "project-settings-languages-list-item" |
-        "project-settings-languages-list-name" |
         "project-settings-transfer-button" |
         "project-states-bar-bar" |
         "project-states-bar-dot" |

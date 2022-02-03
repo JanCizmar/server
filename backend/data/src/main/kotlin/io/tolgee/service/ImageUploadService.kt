@@ -72,10 +72,14 @@ class ImageUploadService(
     }
   }
 
-  fun prepareImage(imageStream: InputStream, compressionQuality: Float = 0.5f): ByteArrayOutputStream {
+  fun prepareImage(
+    imageStream: InputStream,
+    compressionQuality: Float = 0.5f,
+    targetDimension: Dimension? = null
+  ): ByteArrayOutputStream {
     val image = ImageIO.read(imageStream)
     val writer = ImageIO.getImageWritersByFormatName("jpg").next() as ImageWriter
-    val targetDimension = getTargetDimension(image)
+    val targetDimension = targetDimension ?: getTargetDimension(image)
     val resizedImage = BufferedImage(targetDimension.width, targetDimension.height, BufferedImage.TYPE_INT_RGB)
     val graphics2D: Graphics2D = resizedImage.createGraphics()
     graphics2D.drawImage(image, 0, 0, targetDimension.width, targetDimension.height, null)

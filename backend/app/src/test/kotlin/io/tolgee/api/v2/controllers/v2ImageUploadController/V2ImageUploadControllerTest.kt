@@ -21,21 +21,21 @@ import java.util.stream.Collectors
 
 class V2ImageUploadControllerTest : AbstractV2ImageUploadControllerTest() {
 
-  lateinit var initialImageUploadUrl: String
+  lateinit var initialFileStorageUrl: String
 
   @BeforeClass
   fun before() {
-    initialImageUploadUrl = tolgeeProperties.uploadedImagesUrl
+    initialFileStorageUrl = tolgeeProperties.fileStorageUrl
   }
 
   @AfterClass
   fun after() {
-    tolgeeProperties.uploadedImagesUrl = initialImageUploadUrl
+    tolgeeProperties.fileStorageUrl = initialFileStorageUrl
   }
 
   @Test
   fun `uploads single image`() {
-    tolgeeProperties.uploadedImagesUrl = "/uploaded-images"
+    tolgeeProperties.fileStorageUrl = ""
     performStoreImage().andPrettyPrint.andIsCreated.andAssertThatJson {
       node("fileUrl").isString.startsWith("http://").endsWith(".jpg")
       node("requestFilename").isString.satisfies {
@@ -56,7 +56,7 @@ class V2ImageUploadControllerTest : AbstractV2ImageUploadControllerTest() {
 
   @Test
   fun `returns correct fileUrl when absolute url is set`() {
-    tolgeeProperties.uploadedImagesUrl = "https://hello.com/upload"
+    tolgeeProperties.fileStorageUrl = "https://hello.com/upload"
 
     performStoreImage().andPrettyPrint.andIsCreated.andAssertThatJson {
       node("fileUrl").isString.startsWith("https://hello.com/upload").endsWith(".jpg")

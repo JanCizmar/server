@@ -62,6 +62,8 @@ data class UserAccount(
   @OneToMany(mappedBy = "user")
   var organizationRoles: MutableList<OrganizationRole> = mutableListOf()
 
+  var avatarHash: String? = null
+
   constructor(
     id: Long?,
     username: String?,

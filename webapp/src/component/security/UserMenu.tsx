@@ -68,7 +68,7 @@ export const UserMenu: React.FC = () => {
         onClick={handleOpen}
         className={classes.iconButton}
       >
-        <UserAvatar fullName={user.name} userName={user.username} />
+        <UserAvatar />
       </IconButton>
       <Menu
         id="user-menu"

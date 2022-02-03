@@ -2,7 +2,9 @@ package io.tolgee.service
 
 import io.tolgee.configuration.tolgee.TolgeeProperties
 import io.tolgee.constants.Caches
+import io.tolgee.constants.FileStoragePath
 import io.tolgee.constants.Message
+import io.tolgee.dtos.Avatar
 import io.tolgee.dtos.cacheable.UserAccountDto
 import io.tolgee.dtos.request.UserUpdateRequestDto
 import io.tolgee.dtos.request.auth.SignUpDto
@@ -23,14 +25,27 @@ import org.springframework.data.domain.Pageable
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.awt.Dimension
+import java.io.InputStream
+import java.security.MessageDigest
 import java.util.*
+import javax.xml.bind.DatatypeConverter
 
 @Service
 class UserAccountService(
   private val userAccountRepository: UserAccountRepository,
   private val applicationEventPublisher: ApplicationEventPublisher,
-  private val tolgeeProperties: TolgeeProperties
+  private val tolgeeProperties: TolgeeProperties,
+  private val imageUploadService: ImageUploadService,
+  private val fileStorageService: FileStorageService
 ) {
+  companion object {
+    fun getAvatarPaths(hash: String) = Avatar(
+      large = "${FileStoragePath.AVATARS}/$hash.jpg",
+      thumbnail = "${FileStoragePath.AVATARS}/$hash-thumb.jpg"
+    )
+  }
+
   @Autowired
   lateinit var emailVerificationService: EmailVerificationService
 
@@ -122,6 +137,45 @@ class UserAccountService(
     userAccount.resetPasswordCode = null
     return userAccountRepository.save(userAccount)
   }
+
+  @Transactional
+  @CacheEvict(cacheNames = [Caches.USER_ACCOUNTS], key = "#userAccount.id")
+  fun removeAvatar(userAccount: UserAccount) {
+    userAccount.avatarHash?.let { hash ->
+      val (largePath, thumbnailPath) = getAvatarPaths(hash)
+      fileStorageService.deleteFile(largePath)
+      fileStorageService.deleteFile(thumbnailPath)
+      userAccount.avatarHash = null
+      save(userAccount)
+    }
+  }
+
+  @Transactional
+  @CacheEvict(cacheNames = [Caches.USER_ACCOUNTS], key = "#userAccount.id")
+  fun setAvatar(userAccount: UserAccount, avatar: InputStream) {
+    val hash = storeAvatarFiles(avatar, userAccount)
+    removeAvatar(userAccount)
+    userAccount.avatarHash = hash
+  }
+
+  private fun storeAvatarFiles(avatar: InputStream, userAccount: UserAccount): String {
+    val avatarBytes = avatar.readAllBytes()
+    val large = prepareAvatar(avatarBytes, Dimension(200, 200))
+    val thumb = prepareAvatar(avatarBytes, Dimension(50, 50))
+    val idByteArray = "${userAccount.id}---".toByteArray()
+    val bytesToHash = idByteArray + large
+    val hashBinary = MessageDigest.getInstance("SHA-256").digest(bytesToHash)
+    val hash = DatatypeConverter.printHexBinary(hashBinary)
+    val (largePath, thumbnailPath) = getAvatarPaths(hash)
+    fileStorageService.storeFile(largePath, large)
+    fileStorageService.storeFile(thumbnailPath, thumb)
+    return hash
+  }
+
+  private fun prepareAvatar(avatarBytes: ByteArray, dimension: Dimension) =
+    imageUploadService
+      .prepareImage(avatarBytes.inputStream(), 1f, dimension)
+      .toByteArray()
 
   fun getAllInOrganization(
     organizationId: Long,

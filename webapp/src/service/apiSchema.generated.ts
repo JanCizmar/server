@@ -4,6 +4,10 @@
  */
 
 export interface paths {
+  "/v2/user/avatar": {
+    put: operations["uploadAvatar"];
+    delete: operations["removeAvatar"];
+  };
   "/v2/projects/{projectId}": {
     get: operations["get"];
     put: operations["editProject"];
@@ -123,6 +127,10 @@ export interface paths {
     put: operations["setTranslations_2"];
     post: operations["createOrUpdateTranslations_2"];
   };
+  "/v2/user": {
+    get: operations["getInfo"];
+    post: operations["updateUser"];
+  };
   "/v2/slug/generate-project": {
     post: operations["generateProjectSlug"];
   };
@@ -193,8 +201,8 @@ export interface paths {
     post: operations["create_10"];
   };
   "/api/user": {
-    get: operations["getInfo"];
-    post: operations["updateUser"];
+    get: operations["getInfo_1"];
+    post: operations["updateUser_1"];
   };
   "/api/public/validate_email": {
     post: operations["validateEmail"];
@@ -402,6 +410,17 @@ export interface paths {
 
 export interface components {
   schemas: {
+    Avatar: {
+      large: string;
+      thumbnail: string;
+    };
+    UserAccountModel: {
+      id: number;
+      username: string;
+      name?: string;
+      emailAwaitingVerification?: string;
+      avatar?: components["schemas"]["Avatar"];
+    };
     EditProjectDTO: {
       name: string;
       slug?: string;
@@ -439,11 +458,6 @@ export interface components {
       directPermissions?: "VIEW" | "TRANSLATE" | "EDIT" | "MANAGE";
       /** Actual current user's permissions on this project. You can not sort data by this column! */
       computedPermissions?: "VIEW" | "TRANSLATE" | "EDIT" | "MANAGE";
-    };
-    UserAccountModel: {
-      id: number;
-      username: string;
-      name?: string;
     };
     MachineTranslationLanguagePropsDto: {
       /** The language to apply those rules. If null, then this settings are default. */
@@ -636,6 +650,13 @@ export interface components {
       currentName: string;
       newName: string;
     };
+    UserUpdateRequestDto: {
+      name: string;
+      email: string;
+      password?: string;
+      /** Callback url for link sent in e-mail. This may be omitted, when server has set frontEndUrl in properties. */
+      callbackUrl?: string;
+    };
     GenerateSlugDto: {
       name: string;
       oldSlug?: string;
@@ -764,13 +785,6 @@ export interface components {
       projectId: number;
       scopes: string[];
     };
-    UserUpdateRequestDto: {
-      name: string;
-      email: string;
-      password?: string;
-      /** Callback url for link sent in e-mail. This may be omitted, when server has set frontEndUrl in properties. */
-      callbackUrl?: string;
-    };
     TextNode: { [key: string]: unknown };
     SignUpDto: {
       name: string;
@@ -873,7 +887,6 @@ export interface components {
       page?: components["schemas"]["PageMetadata"];
     };
     EntityModelImportFileIssueView: {
-      params: components["schemas"]["ImportFileIssueParamView"][];
       id: number;
       type:
         | "KEY_IS_NOT_STRING"
@@ -884,6 +897,7 @@ export interface components {
         | "PO_MSGCTXT_NOT_SUPPORTED"
         | "ID_ATTRIBUTE_NOT_PROVIDED"
         | "TARGET_NOT_PROVIDED";
+      params: components["schemas"]["ImportFileIssueParamView"][];
     };
     ImportFileIssueParamView: {
       value?: string;
@@ -1124,6 +1138,57 @@ export interface components {
 }
 
 export interface operations {
+  uploadAvatar: {
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "*/*": components["schemas"]["UserAccountModel"];
+        };
+      };
+      /** Bad Request */
+      400: {
+        content: {
+          "*/*": string;
+        };
+      };
+      /** Not Found */
+      404: {
+        content: {
+          "*/*": string;
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "multipart/form-data": {
+          avatar: string;
+        };
+      };
+    };
+  };
+  removeAvatar: {
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "*/*": components["schemas"]["UserAccountModel"];
+        };
+      };
+      /** Bad Request */
+      400: {
+        content: {
+          "*/*": string;
+        };
+      };
+      /** Not Found */
+      404: {
+        content: {
+          "*/*": string;
+        };
+      };
+    };
+  };
   get: {
     parameters: {
       path: {
@@ -2585,6 +2650,55 @@ export interface operations {
       };
     };
   };
+  getInfo: {
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "*/*": components["schemas"]["UserAccountModel"];
+        };
+      };
+      /** Bad Request */
+      400: {
+        content: {
+          "*/*": string;
+        };
+      };
+      /** Not Found */
+      404: {
+        content: {
+          "*/*": string;
+        };
+      };
+    };
+  };
+  updateUser: {
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "*/*": components["schemas"]["UserAccountModel"];
+        };
+      };
+      /** Bad Request */
+      400: {
+        content: {
+          "*/*": string;
+        };
+      };
+      /** Not Found */
+      404: {
+        content: {
+          "*/*": string;
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UserUpdateRequestDto"];
+      };
+    };
+  };
   generateProjectSlug: {
     responses: {
       /** OK */
@@ -3525,7 +3639,7 @@ export interface operations {
       };
     };
   };
-  getInfo: {
+  getInfo_1: {
     responses: {
       /** OK */
       200: {
@@ -3547,7 +3661,7 @@ export interface operations {
       };
     };
   };
-  updateUser: {
+  updateUser_1: {
     responses: {
       /** OK */
       200: unknown;

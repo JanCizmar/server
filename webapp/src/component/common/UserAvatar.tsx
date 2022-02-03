@@ -1,6 +1,7 @@
 import { makeStyles } from '@material-ui/core';
-import { AutoAvatar } from './AutoAvatar';
 import { useUser } from 'tg.hooks/useUser';
+import React, { FC } from 'react';
+import { AvatarImg } from './AvatarImg';
 
 const SIZE = 24;
 
@@ -18,26 +19,21 @@ const useStyle = makeStyles((theme) => ({
     boxSizing: 'border-box',
     fontWeight: 600,
     overflow: 'hidden',
-    backgroundColor: 'rgb(225,225,225)',
+    filter: 'drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.2))',
   },
   img: {
     objectFit: 'cover',
   },
 }));
 
-type Props = {
-  fullName: string;
-  userName: string;
-};
-
-export const UserAvatar: React.FC<Props> = ({ fullName, userName }) => {
+export const UserAvatar: FC = () => {
   const classes = useStyle();
 
   const user = useUser();
 
   return (
     <div className={classes.root}>
-      <AutoAvatar userId={user!.id} className={classes.img} width={SIZE} />
+      <AvatarImg user={user} size={SIZE} />
     </div>
   );
 };
