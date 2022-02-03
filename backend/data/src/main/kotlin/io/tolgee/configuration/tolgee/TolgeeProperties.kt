@@ -17,7 +17,7 @@ open class TolgeeProperties(
   var openReplayApiKey: String? = null,
   var internal: InternalProperties = InternalProperties(),
   var fileStorageUrl: String = "",
-  var maxUploadFileSize: Int = 2048,
+  var maxUploadFileSize: Int = 51200,
   val maxScreenshotsPerKey: Int = 20,
   var fileStorage: FileStorageProperties = FileStorageProperties(),
   var frontEndUrl: String? = null,

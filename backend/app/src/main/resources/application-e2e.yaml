@@ -10,7 +10,7 @@ tolgee:
     github:
       client-id: dummy_client_id
       client-secret: dummy_client_secret
-  file-storage-url: http://localhost:8080
+  file-storage-url: http://localhost:8201
   internal:
     populate: true
     controller-enabled: true

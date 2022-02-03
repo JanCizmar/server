@@ -170,6 +170,7 @@ export const ScreenshotGallery: React.FC<ScreenshotGalleryProps> = (props) => {
               },
             })
             .catch((e) => {
+              console.error(e);
               errorHappened = true;
             })
         )

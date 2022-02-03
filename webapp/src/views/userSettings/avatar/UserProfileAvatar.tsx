@@ -12,6 +12,7 @@ import { AvatarImg } from 'tg.component/common/AvatarImg';
 import { AvatarEditMenu } from './AvatarEditMenu';
 import { parseErrorResponse } from 'tg.fixtures/errorFIxtures';
 import { AvatarEditDialog } from './AvatarEditDialog';
+import { useConfig } from 'tg.hooks/useConfig';
 
 const useStyles = makeStyles((theme) => ({
   editButton: {
@@ -48,15 +49,17 @@ const file2Base64 = (file: File): Promise<string> => {
 };
 
 const messageService = container.resolve(MessageService);
+const ALLOWED_UPLOAD_TYPES = ['image/png', 'image/jpeg', 'image/gif'];
 
 export const UserProfileAvatar: FC = () => {
   const classes = useStyles();
   const fileRef = createRef<HTMLInputElement>();
-  const ALLOWED_UPLOAD_TYPES = ['image/png', 'image/jpeg', 'image/gif'];
   const [uploaded, setUploaded] = useState(null as string | null | undefined);
-  const cropperRef = useRef<ReactCropperElement>(null);
+  const cropperRef = createRef<ReactCropperElement>();
+  const [uploading, setUploading] = useState(false);
 
   const user = useUser();
+  const config = useConfig();
 
   const uploadLoadable = useApiMutation({
     url: '/v2/user/avatar',
@@ -73,24 +76,32 @@ export const UserProfileAvatar: FC = () => {
   const onSave = () => {
     const imageElement: any = cropperRef?.current;
     const cropper: any = imageElement?.cropper;
-    cropper.getCroppedCanvas().toBlob((blob) => {
-      uploadLoadable
-        .mutateAsync({
+    setUploading(true);
+    cropper.getCroppedCanvas().toBlob(async (blob) => {
+      try {
+        await uploadLoadable.mutateAsync({
           content: {
             'multipart/form-data': {
               avatar: new File([blob], 'Avatar', { type: 'image/png' }) as any,
             },
           },
-        })
-        .then(() => {
-          setUploaded(undefined);
-          setAvatarMenuAnchorEl(undefined);
-        })
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error(e);
-          messageService.error(<T>global-upload-not-successful</T>);
         });
+        setUploaded(undefined);
+        setAvatarMenuAnchorEl(undefined);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error(e);
+        if (e.code == 'file_too_big') {
+          messageService.error(<T>file_too_big</T>);
+        }
+        messageService.error(<T>global-upload-not-successful</T>);
+      } finally {
+        // eslint-disable-next-line no-console
+        setUploading(false);
+        if (fileRef.current) {
+          fileRef.current.files = new DataTransfer().files;
+        }
+      }
     });
   };
 
@@ -108,21 +119,26 @@ export const UserProfileAvatar: FC = () => {
     undefined as Element | undefined | null
   );
 
+  const onFileInputChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    const file = e.target?.files?.[0];
+    if (file) {
+      if (file.size > config.maxUploadFileSize * 1024) {
+        messageService.error(<T>file_too_big</T>);
+        return;
+      }
+      file2Base64(file).then((base64) => {
+        setUploaded(base64);
+      });
+    }
+  };
+
   return (
     <>
       <input
         type="file"
         style={{ display: 'none' }}
         ref={fileRef}
-        onChange={(e) => {
-          const file = e.target?.files?.[0];
-          if (file) {
-            file2Base64(file).then((base64) => {
-              setUploaded(base64);
-            });
-          }
-        }}
-        multiple
+        onChange={onFileInputChange}
         accept={ALLOWED_UPLOAD_TYPES.join(',')}
       />
       <Box
@@ -159,6 +175,7 @@ export const UserProfileAvatar: FC = () => {
         <AvatarEditDialog
           src={uploaded}
           cropperRef={cropperRef as any}
+          isUploading={uploading}
           onCancel={() => {
             setUploaded(undefined);
           }}

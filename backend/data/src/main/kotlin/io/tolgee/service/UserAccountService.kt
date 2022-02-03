@@ -25,19 +25,16 @@ import org.springframework.data.domain.Pageable
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.awt.Dimension
 import java.io.InputStream
-import java.security.MessageDigest
 import java.util.*
-import javax.xml.bind.DatatypeConverter
 
 @Service
 class UserAccountService(
   private val userAccountRepository: UserAccountRepository,
   private val applicationEventPublisher: ApplicationEventPublisher,
   private val tolgeeProperties: TolgeeProperties,
-  private val imageUploadService: ImageUploadService,
-  private val fileStorageService: FileStorageService
+  private val fileStorageService: FileStorageService,
+  private val avatarService: AvatarService
 ) {
   companion object {
     fun getAvatarPaths(hash: String) = Avatar(
@@ -153,29 +150,10 @@ class UserAccountService(
   @Transactional
   @CacheEvict(cacheNames = [Caches.USER_ACCOUNTS], key = "#userAccount.id")
   fun setAvatar(userAccount: UserAccount, avatar: InputStream) {
-    val hash = storeAvatarFiles(avatar, userAccount)
+    val hash = avatarService.storeAvatarFiles(avatar, userAccount)
     removeAvatar(userAccount)
     userAccount.avatarHash = hash
   }
-
-  private fun storeAvatarFiles(avatar: InputStream, userAccount: UserAccount): String {
-    val avatarBytes = avatar.readAllBytes()
-    val large = prepareAvatar(avatarBytes, Dimension(200, 200))
-    val thumb = prepareAvatar(avatarBytes, Dimension(50, 50))
-    val idByteArray = "${userAccount.id}---".toByteArray()
-    val bytesToHash = idByteArray + large
-    val hashBinary = MessageDigest.getInstance("SHA-256").digest(bytesToHash)
-    val hash = DatatypeConverter.printHexBinary(hashBinary)
-    val (largePath, thumbnailPath) = getAvatarPaths(hash)
-    fileStorageService.storeFile(largePath, large)
-    fileStorageService.storeFile(thumbnailPath, thumb)
-    return hash
-  }
-
-  private fun prepareAvatar(avatarBytes: ByteArray, dimension: Dimension) =
-    imageUploadService
-      .prepareImage(avatarBytes.inputStream(), 1f, dimension)
-      .toByteArray()
 
   fun getAllInOrganization(
     organizationId: Long,

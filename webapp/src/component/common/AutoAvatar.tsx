@@ -1,4 +1,3 @@
-import { toSvg } from 'jdenticon';
 import { ComponentProps, FC, useState } from 'react';
 import { CircularProgress } from '@material-ui/core';
 
@@ -14,7 +13,7 @@ export const AutoAvatar: FC<
   });
 
   return base64 ? (
-    <div style={{ backgroundColor: 'rgb(225,225,225)' }}>
+    <div style={{ backgroundColor: 'rgb(225,225,225)', display: 'flex' }}>
       <img
         {...imgProps}
         src={`data:image/svg+xml;base64,${base64}`}
