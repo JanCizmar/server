@@ -15,6 +15,7 @@ import { RedirectionActions } from 'tg.store/global/RedirectionActions';
 
 import { BaseOrganizationSettingsView } from './BaseOrganizationSettingsView';
 import { OrganizationFields } from './components/OrganizationFields';
+import { OrganizationProfileAvatar } from './OrganizationProfileAvatar';
 
 type OrganizationBody = components['schemas']['OrganizationDto'];
 
@@ -123,6 +124,7 @@ export const OrganizationProfileView: FunctionComponent = () => {
         }
       >
         <>
+          <OrganizationProfileAvatar />
           <OrganizationFields />
         </>
       </StandardForm>

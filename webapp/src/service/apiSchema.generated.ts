@@ -86,6 +86,10 @@ export interface paths {
     put: operations["editLanguage"];
     delete: operations["deleteLanguage_1"];
   };
+  "/v2/projects/{id}/avatar": {
+    put: operations["uploadAvatar_1"];
+    delete: operations["removeAvatar_1"];
+  };
   "/v2/organizations/{organizationId}/users/{userId}/set-role": {
     put: operations["setUserRole"];
   };
@@ -103,6 +107,14 @@ export interface paths {
   };
   "/api/organizations/{id}/invite": {
     put: operations["inviteUser_2"];
+  };
+  "/v2/organizations/{id}/avatar": {
+    put: operations["uploadAvatar_2"];
+    delete: operations["removeAvatar_2"];
+  };
+  "/api/organizations/{id}/avatar": {
+    put: operations["uploadAvatar_3"];
+    delete: operations["removeAvatar_3"];
   };
   "/v2/organizations/{id}": {
     get: operations["get_7"];
@@ -444,6 +456,7 @@ export interface components {
       name: string;
       description?: string;
       slug?: string;
+      avatar?: components["schemas"]["Avatar"];
       userOwner?: components["schemas"]["UserAccountModel"];
       baseLanguage?: components["schemas"]["LanguageModel"];
       organizationOwnerName?: string;
@@ -613,12 +626,6 @@ export interface components {
       type: "MEMBER" | "OWNER";
       createdAt: string;
     };
-    OrganizationDto: {
-      name: string;
-      description?: string;
-      slug?: string;
-      basePermissions: "VIEW" | "TRANSLATE" | "EDIT" | "MANAGE";
-    };
     OrganizationModel: {
       id: number;
       name: string;
@@ -626,6 +633,13 @@ export interface components {
       description?: string;
       basePermissions: "VIEW" | "TRANSLATE" | "EDIT" | "MANAGE";
       currentUserRole: "MEMBER" | "OWNER";
+      avatar?: components["schemas"]["Avatar"];
+    };
+    OrganizationDto: {
+      name: string;
+      description?: string;
+      slug?: string;
+      basePermissions: "VIEW" | "TRANSLATE" | "EDIT" | "MANAGE";
     };
     V2EditApiKeyDto: {
       scopes: string[];
@@ -2123,6 +2137,67 @@ export interface operations {
       };
     };
   };
+  uploadAvatar_1: {
+    parameters: {
+      path: {
+        id: number;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "*/*": components["schemas"]["ProjectModel"];
+        };
+      };
+      /** Bad Request */
+      400: {
+        content: {
+          "*/*": string;
+        };
+      };
+      /** Not Found */
+      404: {
+        content: {
+          "*/*": string;
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "multipart/form-data": {
+          avatar: string;
+        };
+      };
+    };
+  };
+  removeAvatar_1: {
+    parameters: {
+      path: {
+        id: number;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "*/*": components["schemas"]["ProjectModel"];
+        };
+      };
+      /** Bad Request */
+      400: {
+        content: {
+          "*/*": string;
+        };
+      };
+      /** Not Found */
+      404: {
+        content: {
+          "*/*": string;
+        };
+      };
+    };
+  };
   setUserRole: {
     parameters: {
       path: {
@@ -2288,6 +2363,128 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": components["schemas"]["OrganizationInviteUserDto"];
+      };
+    };
+  };
+  uploadAvatar_2: {
+    parameters: {
+      path: {
+        id: number;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "*/*": components["schemas"]["OrganizationModel"];
+        };
+      };
+      /** Bad Request */
+      400: {
+        content: {
+          "*/*": string;
+        };
+      };
+      /** Not Found */
+      404: {
+        content: {
+          "*/*": string;
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "multipart/form-data": {
+          avatar: string;
+        };
+      };
+    };
+  };
+  removeAvatar_2: {
+    parameters: {
+      path: {
+        id: number;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "*/*": components["schemas"]["OrganizationModel"];
+        };
+      };
+      /** Bad Request */
+      400: {
+        content: {
+          "*/*": string;
+        };
+      };
+      /** Not Found */
+      404: {
+        content: {
+          "*/*": string;
+        };
+      };
+    };
+  };
+  uploadAvatar_3: {
+    parameters: {
+      path: {
+        id: number;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "*/*": components["schemas"]["OrganizationModel"];
+        };
+      };
+      /** Bad Request */
+      400: {
+        content: {
+          "*/*": string;
+        };
+      };
+      /** Not Found */
+      404: {
+        content: {
+          "*/*": string;
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "multipart/form-data": {
+          avatar: string;
+        };
+      };
+    };
+  };
+  removeAvatar_3: {
+    parameters: {
+      path: {
+        id: number;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "*/*": components["schemas"]["OrganizationModel"];
+        };
+      };
+      /** Bad Request */
+      400: {
+        content: {
+          "*/*": string;
+        };
+      };
+      /** Not Found */
+      404: {
+        content: {
+          "*/*": string;
+        };
       };
     };
   };

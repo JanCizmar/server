@@ -9,7 +9,7 @@ import {
 import { T } from '@tolgee/react';
 import { AvatarEdit } from './AvatarEdit';
 import Button from '@material-ui/core/Button';
-import LoadingButton from 'tg.component/common/form/LoadingButton';
+import LoadingButton from '../form/LoadingButton';
 
 export const AvatarEditDialog = (props: {
   src: string;

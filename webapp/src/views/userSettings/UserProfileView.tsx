@@ -14,7 +14,7 @@ import { MessageService } from 'tg.service/MessageService';
 import { useApiMutation, useApiQuery } from 'tg.service/http/useQueryApi';
 import { UserUpdateDTO } from 'tg.service/request.types';
 import { BaseUserSettingsView } from './BaseUserSettingsView';
-import { UserProfileAvatar } from './avatar/UserProfileAvatar';
+import { UserProfileAvatar } from './UserProfileAvatar';
 
 const messagesService = container.resolve(MessageService);
 

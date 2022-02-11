@@ -1,6 +1,8 @@
 package io.tolgee.service
 
 import io.tolgee.component.CurrentDateProvider
+import io.tolgee.constants.Message
+import io.tolgee.dtos.request.validators.exceptions.ValidationException
 import io.tolgee.exceptions.BadRequestException
 import io.tolgee.model.UploadedImage
 import io.tolgee.model.UserAccount
@@ -10,8 +12,9 @@ import org.springframework.core.io.InputStreamSource
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.multipart.MultipartFile
 import java.awt.Dimension
-import java.awt.Graphics2D
+import java.awt.Image
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -75,30 +78,47 @@ class ImageUploadService(
   fun prepareImage(
     imageStream: InputStream,
     compressionQuality: Float = 0.5f,
-    targetDimension: Dimension? = null
+    targetDimension: Dimension? = null,
+    format: String = "jpg"
   ): ByteArrayOutputStream {
     val image = ImageIO.read(imageStream)
-    val writer = ImageIO.getImageWritersByFormatName("jpg").next() as ImageWriter
+    val writer = ImageIO.getImageWritersByFormatName(format).next() as ImageWriter
     val targetDimension = targetDimension ?: getTargetDimension(image)
-    val resizedImage = BufferedImage(targetDimension.width, targetDimension.height, BufferedImage.TYPE_INT_RGB)
-    val graphics2D: Graphics2D = resizedImage.createGraphics()
-    graphics2D.drawImage(image, 0, 0, targetDimension.width, targetDimension.height, null)
-    graphics2D.dispose()
+    val resizedImage = image.getScaledInstance(targetDimension.width, targetDimension.height, Image.SCALE_SMOOTH)
     val outputStream = ByteArrayOutputStream()
 
     val imageOutputStream = ImageIO.createImageOutputStream(outputStream)
 
     val param = writer.defaultWriteParam
-    param.compressionMode = ImageWriteParam.MODE_EXPLICIT
-    param.compressionQuality = compressionQuality
+
+    if (compressionQuality > 0) {
+      param.compressionMode = ImageWriteParam.MODE_EXPLICIT
+      param.compressionQuality = compressionQuality
+    }
 
     writer.output = imageOutputStream
-    writer.write(null, IIOImage(resizedImage, null, null), param)
+    writer.write(null, IIOImage(convertToBufferedImage(resizedImage), null, null), param)
 
     outputStream.close()
     imageOutputStream.close()
     writer.dispose()
     return outputStream
+  }
+
+  fun convertToBufferedImage(img: Image): BufferedImage? {
+    if (img is BufferedImage) {
+      return img
+    }
+
+    // Create a buffered image with transparency
+    val bi = BufferedImage(
+      img.getWidth(null), img.getHeight(null),
+      BufferedImage.TYPE_INT_ARGB
+    )
+    val graphics2D = bi.createGraphics()
+    graphics2D.drawImage(img, 0, 0, null)
+    graphics2D.dispose()
+    return bi
   }
 
   private fun getTargetDimension(image: BufferedImage): Dimension {
@@ -124,6 +144,13 @@ class ImageUploadService(
 
   fun save(image: UploadedImage): UploadedImage {
     return uploadedImageRepository.save(image)
+  }
+
+  fun validateIsImage(image: MultipartFile) {
+    val contentTypes = listOf("image/png", "image/jpeg", "image/gif")
+    if (!contentTypes.contains(image.contentType!!)) {
+      throw ValidationException(Message.FILE_NOT_IMAGE)
+    }
   }
 
   val UploadedImage.filePath

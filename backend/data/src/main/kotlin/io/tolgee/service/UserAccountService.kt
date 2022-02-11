@@ -2,9 +2,7 @@ package io.tolgee.service
 
 import io.tolgee.configuration.tolgee.TolgeeProperties
 import io.tolgee.constants.Caches
-import io.tolgee.constants.FileStoragePath
 import io.tolgee.constants.Message
-import io.tolgee.dtos.Avatar
 import io.tolgee.dtos.cacheable.UserAccountDto
 import io.tolgee.dtos.request.UserUpdateRequestDto
 import io.tolgee.dtos.request.auth.SignUpDto
@@ -36,13 +34,6 @@ class UserAccountService(
   private val fileStorageService: FileStorageService,
   private val avatarService: AvatarService
 ) {
-  companion object {
-    fun getAvatarPaths(hash: String) = Avatar(
-      large = "${FileStoragePath.AVATARS}/$hash.jpg",
-      thumbnail = "${FileStoragePath.AVATARS}/$hash-thumb.jpg"
-    )
-  }
-
   @Autowired
   lateinit var emailVerificationService: EmailVerificationService
 
@@ -138,21 +129,13 @@ class UserAccountService(
   @Transactional
   @CacheEvict(cacheNames = [Caches.USER_ACCOUNTS], key = "#userAccount.id")
   fun removeAvatar(userAccount: UserAccount) {
-    userAccount.avatarHash?.let { hash ->
-      val (largePath, thumbnailPath) = getAvatarPaths(hash)
-      fileStorageService.deleteFile(largePath)
-      fileStorageService.deleteFile(thumbnailPath)
-      userAccount.avatarHash = null
-      save(userAccount)
-    }
+    avatarService.removeAvatar(userAccount)
   }
 
   @Transactional
   @CacheEvict(cacheNames = [Caches.USER_ACCOUNTS], key = "#userAccount.id")
   fun setAvatar(userAccount: UserAccount, avatar: InputStream) {
-    val hash = avatarService.storeAvatarFiles(avatar, userAccount)
-    removeAvatar(userAccount)
-    userAccount.avatarHash = hash
+    avatarService.setAvatar(userAccount, avatar)
   }
 
   fun getAllInOrganization(

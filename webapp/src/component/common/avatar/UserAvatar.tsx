@@ -33,7 +33,17 @@ export const UserAvatar: FC = () => {
 
   return (
     <div className={classes.root}>
-      <AvatarImg user={user} size={SIZE} />
+      {user && (
+        <AvatarImg
+          owner={{
+            avatar: user.avatar,
+            id: user.id,
+            name: user.name,
+            type: 'USER',
+          }}
+          size={SIZE}
+        />
+      )}
     </div>
   );
 };

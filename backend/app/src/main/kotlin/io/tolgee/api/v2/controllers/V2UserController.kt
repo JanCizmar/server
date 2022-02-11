@@ -4,10 +4,9 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.tolgee.api.v2.hateoas.user_account.UserAccountModel
 import io.tolgee.api.v2.hateoas.user_account.UserAccountModelAssembler
-import io.tolgee.constants.Message
 import io.tolgee.dtos.request.UserUpdateRequestDto
-import io.tolgee.dtos.request.validators.exceptions.ValidationException
 import io.tolgee.security.AuthenticationFacade
+import io.tolgee.service.ImageUploadService
 import io.tolgee.service.UserAccountService
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -29,7 +28,8 @@ import javax.validation.Valid
 class V2UserController(
   private val authenticationFacade: AuthenticationFacade,
   private val userAccountService: UserAccountService,
-  private val userAccountModelAssembler: UserAccountModelAssembler
+  private val userAccountModelAssembler: UserAccountModelAssembler,
+  private val imageUploadService: ImageUploadService
 ) {
   @Operation(summary = "Returns current user's data")
   @GetMapping("")
@@ -51,7 +51,7 @@ class V2UserController(
   fun uploadAvatar(
     @RequestParam("avatar") avatar: MultipartFile,
   ): UserAccountModel {
-    validateIsImage(avatar)
+    imageUploadService.validateIsImage(avatar)
     val entity = authenticationFacade.userAccountEntity
     userAccountService.setAvatar(authenticationFacade.userAccountEntity, avatar.inputStream)
     return userAccountModelAssembler.toModel(entity)
@@ -64,12 +64,5 @@ class V2UserController(
     val entity = authenticationFacade.userAccountEntity
     userAccountService.removeAvatar(authenticationFacade.userAccountEntity)
     return userAccountModelAssembler.toModel(entity)
-  }
-
-  private fun validateIsImage(screenshot: MultipartFile) {
-    val contentTypes = listOf("image/png", "image/jpeg", "image/gif")
-    if (!contentTypes.contains(screenshot.contentType!!)) {
-      throw ValidationException(Message.FILE_NOT_IMAGE)
-    }
   }
 }

@@ -4,15 +4,21 @@ import makeStyles from '@material-ui/core/styles/makeStyles';
 import EditIcon from '@material-ui/icons/Edit';
 import { T } from '@tolgee/react';
 import { ReactCropperElement } from 'react-cropper';
-import { useApiMutation } from 'tg.service/http/useQueryApi';
 import { container } from 'tsyringe';
 import { MessageService } from 'tg.service/MessageService';
-import { useUser } from 'tg.hooks/useUser';
-import { AvatarImg } from 'tg.component/common/AvatarImg';
+import { AvatarImg } from './AvatarImg';
 import { AvatarEditMenu } from './AvatarEditMenu';
-import { parseErrorResponse } from 'tg.fixtures/errorFIxtures';
 import { AvatarEditDialog } from './AvatarEditDialog';
 import { useConfig } from 'tg.hooks/useConfig';
+import { parseErrorResponse } from 'tg.fixtures/errorFIxtures';
+import { components } from 'tg.service/apiSchema.generated';
+
+export type AvatarOwner = {
+  name?: string;
+  id: number | string;
+  avatar?: components['schemas']['Avatar'];
+  type: 'ORG' | 'USER' | 'PROJECT';
+};
 
 const useStyles = makeStyles((theme) => ({
   editButton: {
@@ -51,27 +57,17 @@ const file2Base64 = (file: File): Promise<string> => {
 const messageService = container.resolve(MessageService);
 const ALLOWED_UPLOAD_TYPES = ['image/png', 'image/jpeg', 'image/gif'];
 
-export const UserProfileAvatar: FC = () => {
+export const Avatar: FC<{
+  onUpload: (blob: Blob) => Promise<any>;
+  onRemove: () => Promise<any>;
+  owner: AvatarOwner;
+}> = (props) => {
   const classes = useStyles();
   const fileRef = createRef<HTMLInputElement>();
   const [uploaded, setUploaded] = useState(null as string | null | undefined);
   const cropperRef = createRef<ReactCropperElement>();
   const [uploading, setUploading] = useState(false);
-
-  const user = useUser();
   const config = useConfig();
-
-  const uploadLoadable = useApiMutation({
-    url: '/v2/user/avatar',
-    method: 'put',
-    invalidatePrefix: '/v2/user',
-  });
-
-  const removeLoadable = useApiMutation({
-    url: '/v2/user/avatar',
-    method: 'delete',
-    invalidatePrefix: '/v2/user',
-  });
 
   const onSave = () => {
     const imageElement: any = cropperRef?.current;
@@ -79,13 +75,7 @@ export const UserProfileAvatar: FC = () => {
     setUploading(true);
     cropper.getCroppedCanvas().toBlob(async (blob) => {
       try {
-        await uploadLoadable.mutateAsync({
-          content: {
-            'multipart/form-data': {
-              avatar: new File([blob], 'Avatar', { type: 'image/png' }) as any,
-            },
-          },
-        });
+        await props.onUpload(blob);
         setUploaded(undefined);
         setAvatarMenuAnchorEl(undefined);
       } catch (e) {
@@ -102,15 +92,6 @@ export const UserProfileAvatar: FC = () => {
           fileRef.current.files = new DataTransfer().files;
         }
       }
-    });
-  };
-
-  const onRemove = () => {
-    removeLoadable.mutateAsync({}).catch((e) => {
-      // eslint-disable-next-line no-console
-      console.error(e);
-      const parsed = parseErrorResponse(e);
-      parsed.forEach((error) => messageService.error(<T>{error}</T>));
     });
   };
 
@@ -148,7 +129,7 @@ export const UserProfileAvatar: FC = () => {
           setAvatarMenuAnchorEl(editAvatarRef.current);
         }}
       >
-        <AvatarImg user={user} size={200} />
+        <AvatarImg owner={props.owner} size={200} />
         <Box className={classes.editButtonWrapper}>
           <IconButton
             size="small"
@@ -165,8 +146,15 @@ export const UserProfileAvatar: FC = () => {
           fileRef.current?.click();
           setAvatarMenuAnchorEl(undefined);
         }}
-        onRemove={() => {
-          onRemove();
+        onRemove={async () => {
+          try {
+            await props.onRemove();
+          } catch (e) {
+            // eslint-disable-next-line no-console
+            console.error(e);
+            const parsed = parseErrorResponse(e);
+            parsed.forEach((error) => messageService.error(<T>{error}</T>));
+          }
           setAvatarMenuAnchorEl(undefined);
         }}
         onClose={() => setAvatarMenuAnchorEl(undefined)}

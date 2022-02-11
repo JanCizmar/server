@@ -1,19 +1,19 @@
 import { ComponentProps, FC, useState } from 'react';
-import { CircularProgress } from '@material-ui/core';
+import { Skeleton } from '@material-ui/lab';
 
 export const AutoAvatar: FC<
-  ComponentProps<'img'> & { userId: number; size: number }
-> = ({ userId, size, ...imgProps }) => {
+  ComponentProps<'img'> & { entityId: number | string; size: number }
+> = ({ entityId, size, ...imgProps }) => {
   const [base64, setBase64] = useState(undefined as string | undefined);
 
   import('jdenticon').then(({ toSvg }) => {
-    const svgString = toSvg(userId, size);
+    const svgString = toSvg(entityId, size);
     const base64 = Buffer.from(svgString).toString('base64');
     setBase64(base64);
   });
 
   return base64 ? (
-    <div style={{ backgroundColor: 'rgb(225,225,225)', display: 'flex' }}>
+    <div style={{ backgroundColor: 'rgb(239,239,239)', display: 'flex' }}>
       <img
         {...imgProps}
         src={`data:image/svg+xml;base64,${base64}`}
@@ -21,8 +21,6 @@ export const AutoAvatar: FC<
       />
     </div>
   ) : (
-    <div style={{ width: size, height: size, display: 'inline-block' }}>
-      <CircularProgress />
-    </div>
+    <Skeleton variant="rect" width={size} height={size} />
   );
 };

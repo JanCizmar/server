@@ -21,6 +21,7 @@ import { useApiMutation } from 'tg.service/http/useQueryApi';
 import { BaseLanguageSelect } from './components/BaseLanguageSelect';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import { ProjectTransferModal } from 'tg.views/projects/project/components/ProjectTransferModal';
+import { ProjectProfileAvatar } from './ProjectProfileAvatar';
 
 const messageService = container.resolve(MessageService);
 
@@ -133,6 +134,7 @@ export const ProjectSettingsView: FunctionComponent = () => {
         ],
       ]}
     >
+      <ProjectProfileAvatar />
       <StandardForm
         loading={deleteLoadable.isLoading}
         saveActionLoadable={updateLoadable}

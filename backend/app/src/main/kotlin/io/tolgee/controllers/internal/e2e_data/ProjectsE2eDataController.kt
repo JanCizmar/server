@@ -86,7 +86,7 @@ class ProjectsE2eDataController(
         createdUsers[projectData.userOwner]!! else null
 
       val organizationOwner = if (projectData.organizationOwner != null)
-        organizationService.get(projectData.organizationOwner) else null
+        organizationService.find(projectData.organizationOwner) else null
 
       val project = projectRepository.save(
         Project(
