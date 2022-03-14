@@ -2,8 +2,8 @@ import { Divider } from '@material-ui/core';
 import List from '@material-ui/core/List';
 import VpnKeyIcon from '@material-ui/icons/VpnKey';
 import { useTranslate } from '@tolgee/react';
-import { useSelector } from 'react-redux';
-import { container } from 'tsyringe';
+import LanguageIcon from '@material-ui/icons/Language';
+import { Devices } from '@material-ui/icons';
 
 import {
   ExportIcon,
@@ -18,30 +18,26 @@ import { LINKS, PARAMS } from 'tg.constants/links';
 import { useConfig } from 'tg.hooks/useConfig';
 import { useProject } from 'tg.hooks/useProject';
 import { ProjectPermissionType } from 'tg.service/response.types';
-import { GlobalActions } from 'tg.store/global/GlobalActions';
-import { AppState } from 'tg.store/index';
+import { useTopBarTrigger } from 'tg.hooks/useTopBarTrigger';
 
 import { SideMenu } from './SideMenu';
 import { SideMenuItem } from './SideMenuItem';
-import LanguageIcon from '@material-ui/icons/Language';
-import { Devices } from '@material-ui/icons';
-
-const actions = container.resolve(GlobalActions);
+import { SideLogo } from './SideLogo';
 
 export const ProjectMenu = ({ id }) => {
   const projectDTO = useProject();
   const config = useConfig();
 
-  const open = useSelector((state: AppState) => state.global.sideMenuOpen);
-
   const t = useTranslate();
 
+  const trigger = useTopBarTrigger();
+
   return (
-    <SideMenu
-      onSideMenuToggle={() => actions.toggleSideMenu.dispatch()}
-      open={open}
-    >
+    <SideMenu>
       <div data-cy="project-menu-items">
+        <List>
+          <SideLogo visible={trigger} />
+        </List>
         <List>
           <SideMenuItem
             linkTo={LINKS.PROJECTS.build({ [PARAMS.PROJECT_ID]: id })}

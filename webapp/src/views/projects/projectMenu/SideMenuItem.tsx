@@ -1,8 +1,11 @@
 import React from 'react';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import { makeStyles } from '@material-ui/core';
 import { useLocation } from 'react-router-dom';
+import {
+  makeStyles,
+  ListItemIcon,
+  ListItemText,
+  Tooltip,
+} from '@material-ui/core';
 
 import { ListItemLink } from 'tg.component/common/list/ListItemLink';
 
@@ -42,9 +45,13 @@ export function SideMenuItem({
     : match.pathname === linkTo;
 
   return (
-    <ListItemLink selected={isSelected} to={linkTo || ''}>
-      <ListItemIcon>{icon}</ListItemIcon>
-      <ListItemText className={classes.item} primary={text} />
-    </ListItemLink>
+    <Tooltip title={text} placement="right">
+      <div>
+        <ListItemLink selected={isSelected} to={linkTo || ''}>
+          <ListItemIcon>{icon}</ListItemIcon>
+          <ListItemText className={classes.item} primary={text} />
+        </ListItemLink>
+      </div>
+    </Tooltip>
   );
 }

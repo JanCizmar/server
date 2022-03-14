@@ -1,15 +1,15 @@
-import { Box } from '@material-ui/core';
+import clsx from 'clsx';
+import { Link } from 'react-router-dom';
+import { Box, makeStyles, Slide } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
-import clsx from 'clsx';
-import { Link } from 'react-router-dom';
 
 import { LocaleMenu } from '../LocaleMenu';
-import { TolgeeLogo } from '../common/icons/TolgeeLogo';
 import { UserMenu } from '../security/UserMenu';
 import { useConfig } from 'tg.hooks/useConfig';
+import { TolgeeLogo } from 'tg.component/common/icons/TolgeeLogo';
+import { useTopBarTrigger } from 'tg.hooks/useTopBarTrigger';
 
 export const TOP_BAR_HEIGHT = 52;
 
@@ -50,40 +50,47 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface TopBarProps {}
+type Props = {
+  autoHide?: boolean;
+};
 
-export function TopBar(props: TopBarProps) {
+export const TopBar: React.FC<Props> = ({ autoHide = false }) => {
   const classes = useStyles({});
   const config = useConfig();
+
+  const trigger = useTopBarTrigger() && autoHide;
+
   return (
-    <AppBar position="fixed" className={clsx(classes.appBar)}>
-      <Toolbar className={classes.toolbar}>
-        <Box flexGrow={1} display="flex">
-          <Box>
-            <Link className={classes.tolgeeLink} to={'/'}>
-              <Box display="flex" alignItems="center">
-                <Box pr={1} display="flex" justifyItems="center">
-                  <TolgeeLogo fontSize="large" />
-                </Box>
-                <Typography
-                  variant="h5"
-                  color="inherit"
-                  className={classes.logoTitle}
-                >
-                  {config.appName}
-                </Typography>
-                {config.showVersion && (
-                  <Typography variant={'body1'} className={classes.version}>
-                    {config.version}
+    <Slide appear={false} direction="down" in={!trigger}>
+      <AppBar className={clsx(classes.appBar)}>
+        <Toolbar className={classes.toolbar}>
+          <Box flexGrow={1} display="flex">
+            <Box>
+              <Link className={classes.tolgeeLink} to={'/'}>
+                <Box display="flex" alignItems="center">
+                  <Box pr={1} display="flex" justifyItems="center">
+                    <TolgeeLogo fontSize="large" />
+                  </Box>
+                  <Typography
+                    variant="h5"
+                    color="inherit"
+                    className={classes.logoTitle}
+                  >
+                    {config.appName}
                   </Typography>
-                )}
-              </Box>
-            </Link>
+                  {config.showVersion && (
+                    <Typography variant={'body1'} className={classes.version}>
+                      {config.version}
+                    </Typography>
+                  )}
+                </Box>
+              </Link>
+            </Box>
           </Box>
-        </Box>
-        <LocaleMenu />
-        <UserMenu />
-      </Toolbar>
-    </AppBar>
+          <LocaleMenu />
+          <UserMenu />
+        </Toolbar>
+      </AppBar>
+    </Slide>
   );
-}
+};

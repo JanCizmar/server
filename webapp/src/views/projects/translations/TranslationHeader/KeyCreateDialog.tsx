@@ -7,8 +7,8 @@ import { useUrlSearchState } from 'tg.hooks/useUrlSearchState';
 import {
   useTranslationsSelector,
   useTranslationsDispatch,
-} from './context/TranslationsContext';
-import { KeyCreateForm } from './KeyCreateForm/KeyCreateForm';
+} from '../context/TranslationsContext';
+import { KeyCreateForm } from '../KeyCreateForm/KeyCreateForm';
 
 type KeyWithDataModel = components['schemas']['KeyWithDataModel'];
 

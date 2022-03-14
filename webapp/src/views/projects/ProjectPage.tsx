@@ -9,7 +9,6 @@ import { ProjectMenu } from './projectMenu/ProjectMenu';
 const useStyle = makeStyles({
   content: {
     flexGrow: 1,
-    overflowX: 'hidden',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'stretch',
@@ -18,17 +17,20 @@ const useStyle = makeStyles({
 });
 
 interface Props {
-  fullWidth?: boolean;
+  topBarAutoHide?: boolean;
 }
 
-export const ProjectPage: FunctionComponent<Props> = (props) => {
+export const ProjectPage: FunctionComponent<Props> = ({
+  topBarAutoHide,
+  children,
+}) => {
   const project = useProject();
   const classes = useStyle();
 
   return (
-    <DashboardPage fullWidth={props.fullWidth} projectName={project.name}>
+    <DashboardPage topBarAutoHide={topBarAutoHide}>
       <ProjectMenu id={project.id} />
-      <div className={classes.content}>{props.children}</div>
+      <div className={classes.content}>{children}</div>
     </DashboardPage>
   );
 };
