@@ -25,9 +25,13 @@
       ]
     ],
     "branches": [
-      "next",
       {
-        "name": "main"
+        "name": "main",
+        "prerelease": "rc"
+      },
+      {
+        "name": "release",
+        "prerelease": false
       }
     ]
   }
