@@ -17,6 +17,7 @@ jobs:
           ref: ${{ github.event.workflow_run.head_branch }}
           fetch-depth: 0
       - run: git fetch
+
       - run: "env"
 
       - run: git status
