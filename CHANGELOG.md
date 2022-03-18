@@ -1,10 +1,3 @@
-# [2.13.0-rc.1](https://github.com/JanCizmar/server/compare/v2.12.2...v2.13.0-rc.1) (2022-03-18)
-
-
-### Features
-
-* Prerelease test! ([068ca26](https://github.com/JanCizmar/server/commit/068ca2618271261936cdcec107fd5b3963888928))
-
 ## [2.12.2](https://github.com/tolgee/server/compare/v2.12.1...v2.12.2) (2022-03-18)
 
 

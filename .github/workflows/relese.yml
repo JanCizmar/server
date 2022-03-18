@@ -14,6 +14,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - run: "env"
+
+      - run: git status
+
       - uses: actions/setup-java@v1
         with:
           java-version: 11
