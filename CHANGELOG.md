@@ -1,3 +1,10 @@
+# [2.13.0-rc.2](https://github.com/JanCizmar/server/compare/v2.13.0-rc.1...v2.13.0-rc.2) (2022-03-18)
+
+
+### Features
+
+* Prerelease test! ([ffa88d6](https://github.com/JanCizmar/server/commit/ffa88d6bfcbc0e474a5148adfc00aecac4a4989e))
+
 # [2.13.0-rc.1](https://github.com/JanCizmar/server/compare/v2.12.2...v2.13.0-rc.1) (2022-03-18)
 
 
