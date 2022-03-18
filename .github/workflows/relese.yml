@@ -39,7 +39,7 @@ jobs:
         run: npm ci
 
       - name: Run get new version
-        run: npm run release-dry
+        run: GITHUB_REF_NAME=${{ github.event.workflow_run.head_branch }} npm run release-dry
 
       - name: Set version property
         id: version
