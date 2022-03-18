@@ -1,3 +1,14 @@
+# [2.13.0-rc.2](https://github.com/JanCizmar/server/compare/v2.13.0-rc.1...v2.13.0-rc.2) (2022-03-18)
+
+
+### Features
+
+* Prerelease test! ([8e1bb3c](https://github.com/JanCizmar/server/commit/8e1bb3c3ed2b43c1ccdc682e7df9104b279d1c83))
+* Prerelease test! ([a92b735](https://github.com/JanCizmar/server/commit/a92b73529c7472b712ce4f55a890240b1d62b90e))
+* Prerelease test! ([aec076a](https://github.com/JanCizmar/server/commit/aec076af19f3943e3fc7bb42ba3fefb8365d8be0))
+* Prerelease test! ([2187b38](https://github.com/JanCizmar/server/commit/2187b38cb69ec9ad651a419dd044bd032b43e12f))
+* Prerelease test! ([4d39ec1](https://github.com/JanCizmar/server/commit/4d39ec1cb1cacc2eecb9a89e70b22c7969c07596))
+
 ## [2.12.2](https://github.com/tolgee/server/compare/v2.12.1...v2.12.2) (2022-03-18)
 
 
